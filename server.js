@@ -1,8 +1,22 @@
 var http = require("http");
+var url = require("url");
 
-http.createServer(function(request, response)
+function start(route, handle)
 {
-    response.writeHead(200, {"Content-Type": "text/plain"});
-    response.write("Hello World");
-    response.end();
-}).listen(process.env.C9_PORT);
+    function onRequest(request, response)
+    {
+        var pathname = url.parse(request.url).pathname;        
+        console.log("Request for " + pathname + " recieved.");
+        
+        var content = route(handle, pathname);
+        
+        response.writeHead(200, {"Content-Type": "text/plain"});
+        response.write(content);
+        response.end();
+    }
+
+    http.createServer(onRequest).listen(process.env.C9_PORT);
+    console.log("Server has started");
+}
+
+exports.start = start;
